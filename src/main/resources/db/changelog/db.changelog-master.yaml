@@ -1,0 +1,10 @@
+databaseChangeLog:
+
+#  - changeSet:
+#      id: 0
+#      author: admin
+#      changes:
+#        -
+  - include:
+      file: changes/001-create-wallets.sql
+      relativeToChangelogFile: true
