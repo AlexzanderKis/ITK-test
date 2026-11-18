@@ -18,6 +18,6 @@ public interface WalletRepo extends JpaRepository<WalletEntity, UUID> {
     // выстроив параллельные транзакции в очередь и предотвратив race contidion
     @Lock(LockModeType.PESSIMISTIC_WRITE)
 
-    @Query("SELECT w from WalletEntity w where w.id = :id")
+    @Query("SELECT w from WalletEntity w where w.walletId = :id")
     Optional<WalletEntity> findByIdWithLock(@Param("id") UUID id);
 }
