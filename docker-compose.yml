@@ -1,0 +1,39 @@
+services:
+  # PostgreSQL DB service
+  postgres:
+    image: postgres:17
+    container_name: itk-test-app
+    restart: unless-stopped
+
+    #    environment:
+    #      POSTGRES_DB: itk-db
+    #      POSTGRES_USER: postgres123
+    #      POSTGRES_PASSWORD: postgres123
+    #    ports:
+    #      - "5432:5432"
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    #  healthcheck - готова ли БД принимать подключения
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+#   !ПЕРЕД ЗАПУСКОМ проверяем конфиг docker compose config
+#   поднимаем БД docker compose up -d postgres
+#   проверяем состояние и кол-во контейнеров docker compose ps
+#   проверяем логи docker compose logs --follow postgres (в логах должно быть ready for start up)
+#   проверяем готовность БД в контейнере docker compose exec postgres pg_isready --username postgres123 --dbname itk-db
