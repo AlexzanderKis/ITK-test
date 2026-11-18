@@ -24,8 +24,8 @@ import java.util.UUID;
 public class WalletEntity {
 
     @Id
-    private UUID id;
+    private UUID walletId;
 
     @Column(name = "balance", precision = 12, scale = 2)
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 }
