@@ -2,7 +2,7 @@ services:
   # PostgreSQL DB service
   postgres:
     image: postgres:17
-    container_name: itk-test-app
+#    container_name: itk-test-app
     restart: unless-stopped
 
     #    environment:
@@ -22,12 +22,33 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-    #  healthcheck - готова ли БД принимать подключения
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  # SB App
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-50}
+      DB_CONNECTION_TIMEOUT_MS: ${DB_CONNECTION_TIMEOUT_MS:-30000}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
