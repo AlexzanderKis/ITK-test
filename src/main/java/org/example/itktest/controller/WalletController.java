@@ -12,18 +12,18 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1")
 public class WalletController {
 
     private final WalletService walletService;
 
-    @PostMapping("/wallets")
+    @PostMapping("/wallet")
     public ResponseEntity<WalletResponseDTO> processOperation(@Valid @RequestBody WalletOperationRequest operationRequest){
         WalletResponseDTO walletResponseDTO = walletService.processOperation(operationRequest);
         return ResponseEntity.ok(walletResponseDTO);
     }
 
-    @PostMapping("/wallets/{walletId}")
+    @GetMapping("/wallets/{walletId}")
     public ResponseEntity<WalletResponseDTO> getBalance(@PathVariable UUID walletId){
         WalletResponseDTO walletResponseDTO = walletService.getBalance(walletId);
         return ResponseEntity.ok(walletResponseDTO);
