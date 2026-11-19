@@ -11,7 +11,6 @@ import org.example.itktest.repository.WalletRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -22,24 +21,28 @@ public class WalletService {
 
     @Transactional
     public WalletResponseDTO processOperation(WalletOperationRequest operationRequest) {
-        WalletEntity walletEntity = walletRepo.findByIdWithLock(operationRequest.walletId())
-                .orElseThrow(() -> new WalletNotFoundException(operationRequest.walletId()));
-        BigDecimal currentBalance = walletEntity.getBalance();
 
+        int updated;
         if (operationRequest.operationType() == WalletOperationType.DEPOSIT) {
-            walletEntity.setBalance(currentBalance.add(operationRequest.amount()));
-
-        } else if (operationRequest.operationType() == WalletOperationType.WITHDRAW){
-
-            if (currentBalance.compareTo(operationRequest.amount()) < 0){
-                throw new NotEnoughFoundException();
-            } else {
-                walletEntity.setBalance(currentBalance.subtract(operationRequest.amount()));
-            }
+            updated = walletRepo.deposit(operationRequest.walletId(), operationRequest.amount());
+        } else {
+            updated = walletRepo.withdraw(operationRequest.walletId(), operationRequest.amount());
         }
 
+        if (updated == 0) {
+
+            // кошелька нет ИЛИ на снятие не хватило денег
+            // различаем кошельки через exists:
+            if (!walletRepo.existsById(operationRequest.walletId())) {
+                throw new WalletNotFoundException(operationRequest.walletId());
+            }
+            throw new NotEnoughFoundException();
+        }
+
+        WalletEntity walletEntity = walletRepo.findById(operationRequest.walletId()).orElseThrow();
+
         // можно не вызывать save() из-за dirty-checking
-        walletRepo.save(walletEntity);
+//        walletRepo.save(walletEntity);
         return new WalletResponseDTO(walletEntity.getWalletId(), walletEntity.getBalance());
     }
 
