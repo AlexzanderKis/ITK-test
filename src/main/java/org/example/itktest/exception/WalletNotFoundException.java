@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class WalletNotFoundException extends RuntimeException {
     public WalletNotFoundException() {
-        super("?WalletNotFound?");
+        super("Счёт не найден");
     }
 
     // для сообщения
@@ -13,7 +13,7 @@ public class WalletNotFoundException extends RuntimeException {
     }
 
     public WalletNotFoundException(UUID walletId) {
-        super("?WalletNotFound?" + walletId);
+        super("Счёт " + walletId+" не найден");
     }
 }
 
